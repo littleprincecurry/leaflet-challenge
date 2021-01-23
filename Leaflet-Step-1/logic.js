@@ -1,20 +1,38 @@
-var queryUrl = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/significant_month.geojson'
+var queryUrl = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson'
 
 d3.json(queryUrl, function (data) {
     createFeatures(data.features);
 });
 
 function createFeatures(earthquakeData) {
+
+
     function onEachFeature(feature, layer) {
         layer.bindPopup(`<h3> ${feature.properties.place} </h3><hr><p> new Date(${feature.properties.time}) </p>`);
     }
 
     var earthquakes = L.geoJSON(earthquakeData, {
-        onEachFeature: onEachFeature
+        onEachFeature: onEachFeature,
+        pointToLayer: function (feature, latlng) {
+            var geojsonMarkerOptions = {
+                radius: 4 * feature.properties.mag,
+                fillColor: "#ff7800",
+                color: "#000",
+                weight: 1,
+                opacity: feature.properties.mag * 0.1,
+                fillOpacity: feature.properties.mag * 0.1
+            };
+            return L.circleMarker(latlng, geojsonMarkerOptions);
+        }
     });
 
     createMap(earthquakes)
+
 }
+
+// function markerSize(population) {
+//     return population / 40;
+//   }
 
 function createMap(earthquakes) {
 
