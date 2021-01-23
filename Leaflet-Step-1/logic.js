@@ -1,5 +1,16 @@
 var queryUrl = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson'
 
+function getColor(d) {
+    return d > 7.9 ? '#800026' :
+        d > 6.9 ? '#BD0026' :
+            d > 5.9 ? '#E31A1C' :
+                d > 4.9 ? '#FC4E2A' :
+                    d > 3.9 ? '#FD8D3C' :
+                        d > 2.9 ? '#FEB24C' :
+                            d > 1.9 ? '#FED976' :
+                                '#FFEDA0';
+};
+
 d3.json(queryUrl, function (data) {
     createFeatures(data.features);
 });
@@ -16,11 +27,11 @@ function createFeatures(earthquakeData) {
         pointToLayer: function (feature, latlng) {
             var geojsonMarkerOptions = {
                 radius: 4 * feature.properties.mag,
-                fillColor: "#ff7800",
-                color: "#000",
+                fillColor: getColor(feature.properties.mag),
+                color: 'black',
                 weight: 1,
-                opacity: feature.properties.mag * 0.1,
-                fillOpacity: feature.properties.mag * 0.1
+                opacity: 1,
+                fillOpacity: 0.8
             };
             return L.circleMarker(latlng, geojsonMarkerOptions);
         }
@@ -30,9 +41,6 @@ function createFeatures(earthquakeData) {
 
 }
 
-// function markerSize(population) {
-//     return population / 40;
-//   }
 
 function createMap(earthquakes) {
 
@@ -73,13 +81,34 @@ function createMap(earthquakes) {
         layers: [streetmap, earthquakes]
     });
 
-    // Create a layer control
-    // Pass in our baseMaps and overlayMaps
-    // Add the layer control to the map
+
     L.control.layers(baseMaps, overlayMaps, {
         collapsed: false
     }).addTo(myMap);
-}
 
 
+    // Create a legend to display information about our map
+    var legend = L.control({ position: 'bottomright' });
 
+    legend.onAdd = function (map) {
+
+        var div = L.DomUtil.create('div', 'info legend'),
+            grades = [0, 1, 2, 3, 4, 5, 6, 7, 8],
+            labels = [];
+
+        div.innerHTML += 'Magnitude<br><hr>'
+
+        // loop through our density intervals and generate a label with a colored square for each interval
+        for (var i = 0; i < grades.length; i++) {
+            div.innerHTML +=
+                '<i style="background:' + getColor(grades[i] + 1) + '"></i> ' +
+                grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
+        }
+
+        return div;
+    };
+
+    legend.addTo(myMap);
+
+
+};
