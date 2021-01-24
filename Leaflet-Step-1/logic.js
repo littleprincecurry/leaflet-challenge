@@ -19,7 +19,7 @@ function createFeatures(earthquakeData) {
 
 
     function onEachFeature(feature, layer) {
-        layer.bindPopup(`<h3> ${feature.properties.place} </h3><hr><p> new Date(${feature.properties.time}) </p>`);
+        layer.bindPopup(`<h3> ${feature.properties.title} </h3><hr><p>Time: ${feature.properties.time} </br>Magnitude: ${feature.properties.mag}</p>`);
     }
 
     var earthquakes = L.geoJSON(earthquakeData, {
@@ -96,7 +96,7 @@ function createMap(earthquakes) {
             grades = [0, 1, 2, 3, 4, 5, 6, 7, 8],
             labels = [];
 
-        div.innerHTML += 'Magnitude<br><hr>'
+        div.innerHTML += 'Magnitude<hr>'
 
         // loop through our density intervals and generate a label with a colored square for each interval
         for (var i = 0; i < grades.length; i++) {
